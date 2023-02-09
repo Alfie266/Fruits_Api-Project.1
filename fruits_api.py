@@ -7,6 +7,7 @@ fruit_id = []
 family = []
 order = []
 nt_classes = []
+acc_resp = ['genus', 'name', 'fruit id', 'family', 'order', 'carbohydrates', 'protein', 'fat', 'calories', 'sugar']
 
 
 def greet_user():
@@ -43,26 +44,21 @@ def give_info():
     """Inform the user about the table and what information is available"""
     print("The Fruits table has the following information about fruits.\n\t1. Genus\n\t2. Name\n\t3. ID\n\t"
           "4. Order\n\t5. Nutrition Information")
-    print("The table also contains the following nutritional information:\n\t"
+    print("The nutrition information includes the following:\n\t"
           "1. Carbohydrates\n\t2. Protein\n\t3. Fat\n\t4. Calories\n\t5. Sugar")
 
 
 def user_input():
     """Obtains user input on what information is required"""
 
-    info = input("What information do you need?\n")
+    info = input()
 
     if isinstance(info, str):  # check if the user input has alphabet characters only
-        if info.lower().strip() == 'nutrition information':
-            print("Which nutrition information do you need?")
-            nutr = input().lower()
-            print(f"You have selected to view {nutr} information.")
-            return nutr
-        else:
-            print(f"You have selected to view the {info}.")  # inform user of choice before table is displayed
-            return info.lower()
+        print(f"You have chosen to view the {info}")
+        return info.lower()
     else:
         print("Please enter valid input.")
+        return None
 
 
 def create_dataframe():
@@ -78,6 +74,7 @@ def create_dataframe():
     name_df.reset_index(drop=True, inplace=True)
     nutr_df.reset_index(drop=True, inplace=True)
     full_fruit_df = pd.concat([name_df, nutr_df], axis=1)
+    full_fruit_df.set_index('Fruit ID', inplace=True)
     return full_fruit_df
 
 
@@ -87,17 +84,44 @@ def save_data(data_frame):
 
 
 def select_columns():
-    """Takes user input and displays columns with the specified data"""
+    """Takes user input and filters the dataframe to give the specified data"""
     filter_list = []
+
+    print("What information do you need?")
     column = user_input()
-    if column not in filter_list:
-        filter_list.append(column)
-    else:
-        print("You have already added that entry to your requested information.")
+    if column is not None:  # Checks if the user input was accepted in user_input
+        if column in filter_list:
+            print("You have already added that entry to your requested information.")
+        else:
+            filter_list.append(column)  # first entry appended to filter_list
+
+            flag = True
+            while flag:
+                msg1 = input("Would you like to view something else? [Y/N]\n")  # check if user wants more columns
+                if msg1 == 'n':
+                    print("You have selected to view the following:")  # consider moving/calling from display_selection
+                    for crit in filter_list:
+                        print(f"\t{crit}")
+                    flag = False
+                elif msg1 == 'y':
+                    msg2 = input("What else do you need?\n")
+                    # print("Okay")
+                    if msg2 not in filter_list:
+                        filter_list.append(msg2)
+                    else:
+                        break
+                    # filter_list.append(msg2) if msg2 not in filter_list else flag = False
+                    # print("Your filters have been updated")
+
+    return filter_list
+
+
+def display_selection():
+    """Displays columns that have been chosen by the user"""
 
 
 # parse_json((get_data()))
 # print(nt_classes)
 # user_input()
-# create_dataframe()
+# print(create_dataframe())
 # greet_user()
