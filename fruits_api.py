@@ -7,6 +7,7 @@ fruit_id = []
 family = []
 order = []
 nt_classes = []
+# list of acceptable responses, acc_resp
 acc_resp = ['genus', 'name', 'fruit id', 'family', 'order', 'carbohydrates', 'protein', 'fat', 'calories', 'sugar']
 
 
@@ -17,7 +18,15 @@ def greet_user():
     """
     message = "Welcome! What is your name?\n"
     u_name = input(message)
-    print(f"\nThank you. We're glad you're here, {u_name}.\nLet's get you started!")
+    print(f"\nThank you. We're glad you're here, {u_name.title()}.\nLet's get you started!")
+
+
+def give_info():
+    """Inform the user about the table and what information is available"""
+    print("The Fruits table has the following information about fruits.\n\t1. Genus\n\t2. Name\n\t3. ID\n\t"
+          "4. Order\n\t5. Nutrition Information")
+    print("The nutrition information includes the following:\n\t"
+          "1. Carbohydrates\n\t2. Protein\n\t3. Fat\n\t4. Calories\n\t5. Sugar")
 
 
 def get_data():
@@ -38,14 +47,6 @@ def parse_json(response):
         nt_classes.append(response[i]['nutritions'])
 
     return
-
-
-def give_info():
-    """Inform the user about the table and what information is available"""
-    print("The Fruits table has the following information about fruits.\n\t1. Genus\n\t2. Name\n\t3. ID\n\t"
-          "4. Order\n\t5. Nutrition Information")
-    print("The nutrition information includes the following:\n\t"
-          "1. Carbohydrates\n\t2. Protein\n\t3. Fat\n\t4. Calories\n\t5. Sugar")
 
 
 def user_input():
@@ -75,12 +76,15 @@ def create_dataframe():
     nutr_df.reset_index(drop=True, inplace=True)
     full_fruit_df = pd.concat([name_df, nutr_df], axis=1)
     full_fruit_df.set_index('Fruit ID', inplace=True)
+    full_fruit_df.columns = map(str.title, full_fruit_df.columns)
     return full_fruit_df
 
 
-def save_data(data_frame):
-    """Save the created dataframe into a csv file"""
-    data_frame.to_csv('fruit_info.csv', index=False)
+def display_selection(flt_list):  # receives list of filters as argument; called by select_columns()
+    """Displays columns that have been chosen by the user"""
+    print("You have selected to view the following:")  # consider moving/calling from display_selection
+    for crit in flt_list:
+        print(f"\t{crit}")
 
 
 def select_columns():
@@ -93,35 +97,64 @@ def select_columns():
         if column in filter_list:
             print("You have already added that entry to your requested information.")
         else:
-            filter_list.append(column)  # first entry appended to filter_list
+            filter_list.append(column.title())  # first entry appended to filter_list
 
             flag = True
             while flag:
                 msg1 = input("Would you like to view something else? [Y/N]\n")  # check if user wants more columns
                 if msg1 == 'n':
-                    print("You have selected to view the following:")  # consider moving/calling from display_selection
-                    for crit in filter_list:
-                        print(f"\t{crit}")
                     flag = False
                 elif msg1 == 'y':
                     msg2 = input("What else do you need?\n")
                     # print("Okay")
                     if msg2 not in filter_list:
-                        filter_list.append(msg2)
+                        filter_list.append(msg2.title())
                     else:
-                        break
+                        inp2 = input("Filter already added. Add another filter? [Y/N]\n")
+                        if inp2.lower() == 'y':
+                            continue
+                        else:
+                            break
                     # filter_list.append(msg2) if msg2 not in filter_list else flag = False
                     # print("Your filters have been updated")
 
+    display_selection(filter_list)
     return filter_list
 
 
-def display_selection():
-    """Displays columns that have been chosen by the user"""
+def select_rows():
+    """Allow user to find a specific fruit that they need information for"""
+    row_flt_list = []
+    print("Please specify the fruit that you want to learn about.")
+    row_flt1 = input()
+
+    if row_flt1 is not None:
+        if row_flt1 in row_flt_list:
+            print("The fruit is already part of your selected filters.")
+        else:
+            row_flt_list.append(row_flt1.title())
+
+            flag = True
+            while flag:
+                rpt_check = input("Would you like to find another fruit? [Y/N]\n")
+                if rpt_check.lower() == 'n':
+                    flag = False
+                elif rpt_check.lower() == 'y':
+                    row_flt_2 = input("What other fruit do you need to check?\n")
+                    if row_flt_2 not in row_flt_list:
+                        row_flt_list.append(row_flt_2.title())
+                    else:
+                        rpt_check_2 = input("Fruit already included in filter. Add new fruit? [Y/N]\n")
+                        if rpt_check_2.lower() == 'y':
+                            continue
+                        elif rpt_check_2.lower() == 'n':
+                            break
+
+    display_selection(row_flt_list)
+    return row_flt_list
 
 
-# parse_json((get_data()))
-# print(nt_classes)
-# user_input()
-# print(create_dataframe())
-# greet_user()
+def save_data(data_frame):
+    """Save the created dataframe into a csv file"""
+    file_title = input("Specify your preferred filename.\nSeparate words should have underscores between them.")
+    data_frame.to_csv(f'{file_title.lower()}.csv', index=False)

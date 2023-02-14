@@ -9,7 +9,7 @@ while True:  # Main program loop/logic
     fa.greet_user()
     fa.give_info()
 
-    cont = input("Would you like to proceed? [Y/N]\n")
+    cont = input("Would you like to proceed? [Y/N]\n")  # Continuation prompt
 
     if cont.lower() == "n":  # Terminate program
         break
@@ -28,6 +28,20 @@ while True:  # Main program loop/logic
             print(sample_df.head())
 
         main_df = fa.create_dataframe()
-        fa.select_columns()
+        df_col_filter = fa.select_columns()
+        # print(df_filter)
+
+        print("A sample of the information you have chosen is displayed below:")
+        filtered_col_df = main_df.filter(df_col_filter)
+        print(filtered_col_df)
+
+        cont2 = input("Would you like to find information about specific fruits? [Y/N]\n")  # Continuation prompt
+        df_row_filter = fa.select_rows()
+        print(df_row_filter)
+        # final_df = filtered_col_df[filtered_col_df['Name'].isin(df_row_filter)]
+        # print(final_df)
+        print("The filtered information you require is displayed below:")
+        final_df = filtered_col_df.query('Name in @df_row_filter')
+        print(final_df)
 
         break
