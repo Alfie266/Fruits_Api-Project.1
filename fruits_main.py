@@ -36,12 +36,15 @@ while True:  # Main program loop/logic
         print(filtered_col_df)
 
         cont2 = input("Would you like to find information about specific fruits? [Y/N]\n")  # Continuation prompt
-        df_row_filter = fa.select_rows()
+        if cont2.lower() == 'n':
+            break
+        else:
+            df_row_filter = fa.select_rows()
         print(df_row_filter)
         # final_df = filtered_col_df[filtered_col_df['Name'].isin(df_row_filter)]
         # print(final_df)
-        print("The filtered information you require is displayed below:")
-        final_df = filtered_col_df.query('Name in @df_row_filter')
-        print(final_df)
+        # print("The filtered information you require is displayed below:")
+        # final_df = filtered_col_df.query('Name in @df_row_filter')
+        # print(final_df)
 
         break
